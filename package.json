@@ -2,9 +2,10 @@
   "name": "serviceworker",
   "version": "1.0.0",
   "description": "",
-  "main": "sw.js",
+  "main": "src/app.js",
   "scripts": {
     "dev": "webpack-dev-server --progress --mode development",
+    "prod": "webpack",
     "server": "nodemon server/app.js"
   },
   "author": "",
@@ -14,6 +15,7 @@
     "@babel/preset-env": "7.1.0",
     "babel-loader": "8.0.4",
     "clean-webpack-plugin": "0.1.19",
+    "copy-webpack-plugin": "5.0.1",
     "css-loader": "1.0.1",
     "express.js": "1.0.0",
     "extract-text-webpack-plugin": "4.0.0-beta.0",

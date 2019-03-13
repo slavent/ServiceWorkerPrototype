@@ -3,6 +3,7 @@ const webpack = require( "webpack" )
 const ExtractTextPlugin = require( "extract-text-webpack-plugin" )
 const CleanWebpackPlugin = require( "clean-webpack-plugin" )
 const HtmlWebpackPlugin = require( "html-webpack-plugin" )
+const CopyPlugin = require("copy-webpack-plugin")
 
 module.exports = {
     entry: "./src/app.js",
@@ -47,7 +48,10 @@ module.exports = {
         new HtmlWebpackPlugin( {
             template: "./src/index.html"
         } ),
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new CopyPlugin([
+            { from: 'src/ServiceWorker.js', to: '' },
+        ])
     ],
     resolve: {
         extensions: [ ".js", ".jsx" ],
@@ -62,7 +66,7 @@ module.exports = {
         hotOnly: true,
         open: true,
         proxy: {
-            '/api': 'http://localhost:3000'
+            "/api": "http://localhost:3000"
         }
     }
 }
