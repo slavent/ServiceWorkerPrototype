@@ -13,7 +13,7 @@ const METHODS = {
  */
 class FileLoadWorker {
     dataBase = new Dexie( "keys" )
-    image = null
+    file = null
 
     createStore = () => {
         this.dataBase.version( 1 ).stores( {
@@ -29,11 +29,15 @@ class FileLoadWorker {
                 return
             }
 
-            request.clone().json().then( json => {
-                this.image = json.image
+            request.clone().formData().then( data => {
+                this.file = data.get( "file" )
+                this.typeId = data.get( "typeId" )
             } )
 
             this.createStore()
+            this.checkConnection()
+
+            console.log( "send main request" )
 
             event.respondWith(
                 fetch( request )
@@ -44,32 +48,51 @@ class FileLoadWorker {
     }
 
     onSuccess = response => {
-        if ( response.status >= 500 ) {
-            this.dataBase.simple.clear()
-            this.dataBase.simple.add( this.image, 1 )
-            this.dataBase.simple.get( 1, image => this.sendTimeoutRequest( image ) )
-        }
+        this.dataBase.simple.clear()
+        this.dataBase.simple.add( this.file, 1 )
+        this.dataBase.simple.get( 1, file => {
+            const body = new FormData()
+
+            body.set( "file", file )
+            body.set( "typeId", "123" )
+
+            const request = new Request( "http://localhost:8081/api/tasks", {
+                method: "POST",
+                body
+            } )
+
+            console.log( "send worker's request" )
+
+            setTimeout( () => {
+                fetch( request )
+                    .then( response => console.log( response ) )
+                    .catch( error => console.error( error ) )
+            }, 3000 )
+        } )
 
         return response
     }
 
     onFail = error => console.error( error )
 
-    sendTimeoutRequest( image ) {
-        setTimeout( () => {
-            const request = new Request( "http://localhost:8080/api/tasks", {
-                method: "POST",
-                body: JSON.stringify( { image } )
-            } )
-
-            fetch( request )
-                .then()
-                .catch()
-
-        }, 10000 )
+    checkConnection() {
+        setInterval(() => {
+            console.log( navigator.onLine )
+        }, 2000)
     }
 }
 
 const worker = new FileLoadWorker()
 
 worker.listen()
+
+const convertHeadersToArray = request => {
+    const headers = []
+
+    for ( let header of request.headers ) {
+
+        headers.push( header )
+    }
+
+    return headers
+}

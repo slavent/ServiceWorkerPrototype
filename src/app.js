@@ -24,29 +24,20 @@ class App {
     bindDomElements() {
         const $photo = document.getElementById( "file" )
 
-        $photo.addEventListener( "change", this.readFile.bind( this ) )
+        $photo.addEventListener( "change", this.sendRequest.bind( this ) )
     }
 
-    readFile() {
-        const reader = new FileReader()
+    sendRequest() {
         const file = document.getElementById( "file" ).files[0]
+        const data = new FormData()
 
-        reader.onloadend = () => {
-            const dataUrl = reader.result
+        data.set("file", file )
+        data.set("typeId", "123" )
 
-            this.sendRequest( dataUrl )
-        }
-
-        reader.readAsDataURL( file )
-    }
-
-    sendRequest( dataUrl ) {
         const config = {
             url: "api/tasks",
             method: "post",
-            data: {
-                image: dataUrl
-            }
+            data
         }
 
         axios( config )

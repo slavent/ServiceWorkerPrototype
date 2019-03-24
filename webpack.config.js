@@ -60,7 +60,7 @@ module.exports = {
     },
     devServer: {
         contentBase: "./dist",
-        port: 8080,
+        port: 8081,
         clientLogLevel: "error",
         watchContentBase: true,
         hotOnly: true,
