@@ -35,9 +35,6 @@ class FileLoadWorker {
             } )
 
             this.createStore()
-            this.checkConnection()
-
-            console.log( "send main request" )
 
             event.respondWith(
                 fetch( request )
@@ -48,6 +45,10 @@ class FileLoadWorker {
     }
 
     onSuccess = response => {
+        if ( response.status === 200 ) {
+            return response
+        }
+
         this.dataBase.simple.clear()
         this.dataBase.simple.add( this.file, 1 )
         this.dataBase.simple.get( 1, file => {
@@ -61,25 +62,21 @@ class FileLoadWorker {
                 body
             } )
 
-            console.log( "send worker's request" )
+            const intervalId = setInterval( () => {
+                console.log( "Connection is " + ( navigator.onLine ? "success" : "fail." ) )
 
-            setTimeout( () => {
-                fetch( request )
-                    .then( response => console.log( response ) )
-                    .catch( error => console.error( error ) )
+                if ( navigator.onLine ) {
+                    fetch( request )
+                        .then( response => console.log( response ) )
+                        .catch( error => console.error( error ) )
+
+                    clearInterval( intervalId )
+                }
             }, 3000 )
         } )
-
-        return response
     }
 
     onFail = error => console.error( error )
-
-    checkConnection() {
-        setInterval(() => {
-            console.log( navigator.onLine )
-        }, 2000)
-    }
 }
 
 const worker = new FileLoadWorker()
